@@ -6,7 +6,7 @@ from io import BytesIO
 import plotly.graph_objects as go
 from datetime import datetime
 
-# Replace "your_api_key_here" with your actual OpenAI API key
+
 client = OpenAI(api_key=st.secrets["OPEN_AI_KEY"])
 
 
@@ -60,46 +60,49 @@ def export_data():
                        file_name='stock_data.xlsx',
                        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
+def main():
+    st.title('Interactive Financial Stock Market Comparative Analysis Tool')
 
-st.title('Interactive Financial Stock Market Comparative Analysis Tool')
-
-# Sidebar for user inputs
-st.sidebar.header('User Input Options')
-selected_stock = st.sidebar.text_input('Enter Stock Ticker 1', 'AAPL').upper()
-selected_stock2 = st.sidebar.text_input('Enter Stock Ticker 2', 'GOOGL').upper()
-start_date = st.sidebar.date_input(
-    "Start date",
-    max_value=datetime.today()
-)
-end_date = st.sidebar.date_input(
-    "End date",
-    min_value=start_date,
-    max_value=datetime.today()
-)
-
-
-# Fetch stock data
-stock_data = get_stock_data(selected_stock, start_date, end_date)
-stock_data2 = get_stock_data(selected_stock2, start_date, end_date)
-
-col1, col2 = st.columns(2)
-
-# Display stock data
-with col1:
-    data_visualization(selected_stock, stock_data)
-with col2:
-    data_visualization(selected_stock2, stock_data2)
-
-export_data()
-if st.button('Comparative Performance'):
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system",
-             "content": "You are a financial assistant that will retrieve two tables of financial market data and will summarize the comparative performance in text, in full detail with highlights for each stock and also a conclusion with a markdown output. BE VERY STRICT ON YOUR OUTPUT"},
-            {"role": "user",
-             "content": f"This is the {selected_stock} stock data : {stock_data}, this is {selected_stock2} stock data: {stock_data2}"}
-        ]
+    # Sidebar for user inputs
+    st.sidebar.header('User Input Options')
+    selected_stock = st.sidebar.text_input('Enter Stock Ticker 1', 'AAPL').upper()
+    selected_stock2 = st.sidebar.text_input('Enter Stock Ticker 2', 'GOOGL').upper()
+    start_date = st.sidebar.date_input(
+        "Start date",
+        max_value=datetime.today()
     )
-    st.write(response.choices[0].message.content)
+    end_date = st.sidebar.date_input(
+        "End date",
+        min_value=start_date,
+        max_value=datetime.today()
+    )
+
+    # Fetch stock data
+    stock_data = get_stock_data(selected_stock, start_date, end_date)
+    stock_data2 = get_stock_data(selected_stock2, start_date, end_date)
+
+    col1, col2 = st.columns(2)
+
+    # Display stock data
+    with col1:
+        data_visualization(selected_stock, stock_data)
+    with col2:
+        data_visualization(selected_stock2, stock_data2)
+
+    export_data()
+    if st.button('Comparative Performance'):
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system",
+                 "content": "You are a financial assistant that will retrieve two tables of financial market data and will summarize the comparative performance in text, in full detail with highlights for each stock and also a conclusion with a markdown output. BE VERY STRICT ON YOUR OUTPUT"},
+                {"role": "user",
+                 "content": f"This is the {selected_stock} stock data : {stock_data}, this is {selected_stock2} stock data: {stock_data2}"}
+            ]
+        )
+        st.write(response.choices[0].message.content)
+
+
+if __name__ == "__main__":
+    main()
 
