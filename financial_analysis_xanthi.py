@@ -6,7 +6,6 @@ from io import BytesIO
 import plotly.graph_objects as go
 from datetime import datetime
 
-
 client = OpenAI(api_key=st.secrets["OPEN_AI_KEY"])
 
 
@@ -47,7 +46,7 @@ def candlestick_plot(data):
 
 
 # Function to export data in excel file (2 different sheets)
-def export_data():
+def export_data(stock_data, stock_data2, selected_stock, selected_stock2):
     # Buffer to save the Excel file
     buffer = BytesIO()
     # Write data to Excel file with multiple sheets
@@ -89,7 +88,9 @@ def main():
     with col2:
         data_visualization(selected_stock2, stock_data2)
 
-    export_data()
+    if not stock_data.empty and not stock_data2.empty:
+        export_data(stock_data, stock_data2, selected_stock, selected_stock2)
+
     if st.button('Comparative Performance'):
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
